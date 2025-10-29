@@ -1,9 +1,8 @@
 import pygame
+from entities.gun import Gun
 
 class Player:
     def __init__(self, x, y):
-        self.x = x
-        self.y = y
         self.speed = 2
         self.direction = "right"
         self.image = pygame.Surface((32, 32))
@@ -11,7 +10,7 @@ class Player:
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-        self.shot_rect = pygame.Surface((4, 4))
+        self.gun = Gun(self)
 
     def move(self, dx, dy):
         self.rect.x += dx * self.speed
@@ -19,3 +18,11 @@ class Player:
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)
+        self.gun.draw(screen)
+
+    def update(self, screen_width, screen_height):
+        self.gun.update(screen_width, screen_height)
+
+    def fire_at(self, target_pos):
+        self.gun.try_fire(target_pos)
+    
