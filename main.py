@@ -6,6 +6,8 @@ from entities.player import Player
 from entities.crosshair import Crosshair
 from entities.mob import Mob
 from systems.sign import sign
+import systems.movement as movement
+import systems.spawn as spawn
 
 pygame.init()
 
@@ -42,20 +44,7 @@ while True:
             pygame.quit()
             sys.exit()
         elif event.type == SPAWN_MOB:
-            if spawned_counter == ENEMY_COUNT:
-                already_spawned = True
-            if not already_spawned:
-                spawned_counter ++1
-                edge = random.choice(["top", "bottom", "left", "right"])
-                if edge == "top":
-                    x, y = random.randint(32, SCREEN_WIDTH - 32), -32
-                elif edge == "bottom":
-                    x, y = random.randint(32, SCREEN_WIDTH - 32), SCREEN_HEIGHT
-                elif edge == "left":
-                    x, y = -32, random.randint(32, SCREEN_HEIGHT - 32)
-                else:  # right
-                    x, y = SCREEN_WIDTH, random.randint(32, SCREEN_HEIGHT - 32)
-                mobs.append(Mob(x, y))
+            mobs, spawned_counter, already_spawned = spawn.spawn_mob(mobs, already_spawned, spawned_counter)
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1: 
                 lmb_down = True
@@ -71,9 +60,7 @@ while True:
     
     # Generování mobs
     keys = pygame.key.get_pressed()
-    dx = (keys[pygame.K_d] or keys[pygame.K_RIGHT]) - (keys[pygame.K_a] or keys[pygame.K_LEFT])
-    dy = (keys[pygame.K_s] or keys[pygame.K_DOWN]) - (keys[pygame.K_w] or keys[pygame.K_UP])
-    player.move(dx, dy)
+    movement.player_movement(player, keys)
 
     mouse_x, mouse_y = pygame.mouse.get_pos()
     cross.rect.x = mouse_x - cross.rect.width // 2  # Centrování crosshair na myš
@@ -96,9 +83,7 @@ while True:
 
     # Mobs pohyb (směr k hráči po ose x/y)
     for mob in mobs:
-        dx_unit = sign(player.rect.centerx - mob.rect.centerx)
-        dy_unit = sign(player.rect.centery - mob.rect.centery)
-        mob.move(dx_unit * ENEMY_SPEED, dy_unit * ENEMY_SPEED)
+        movement.mob_movement(mob, player)
 
     # Hit check
     for bullet in list(player.gun.bullets):

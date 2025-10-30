@@ -21,6 +21,8 @@ class Player:
         self.gun.draw(screen)
 
     def update(self, screen_width, screen_height):
+        self.rect.x = max(0, min(self.rect.x, screen_width - self.rect.width))
+        self.rect.y = max(0, min(self.rect.y, screen_height - self.rect.height))
         self.gun.update(screen_width, screen_height)
 
     def fire_at(self, target_pos):
